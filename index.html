@@ -6,7 +6,14 @@
 </head>
 <body>
   <h1>Volca Sample Breakbeat Embalmer</h1>
-  <p>Uses the procedure detailed by electronic music producer <a href="https://www.youtube.com/watch?v=ci_ReYDKUfI">Chris Lody</a> to calculate the correct amount of silence to add to the end of a breakbeat, then renders a downloadable WAV ready to load onto the Korg Volca Sample.</p>
+  <p>Use the live demo below, or download the project from <a href="https://github.com/davemh/volca-sample-breakbeat-embalmer">github</a> for offline use.</p>
+  <p>Breakbeat Embalmer uses the procedure detailed by electronic music producer <a href="https://www.youtube.com/watch?v=ci_ReYDKUfI">Chris Lody</a> to prepare a breakbeat for use on the Korg Volca Sample:
+    <ol>
+    <li>Measure the length of a breakbeat audio file in samples [WAV preferred].</li>
+    <li>Calculate the correct amount of silence to add to the end of it, by multiplying its length by .11111.</li>
+    <li>Add that amount of silence to the original file, and render a downloadable WAV.</li>
+   </ol>
+
   <input type="file" id="fileInput" accept="audio/*">
   <button id="processBtn">Process & Export WAV</button>
   <a id="downloadLink" style="display:none;">Download Processed WAV</a>
