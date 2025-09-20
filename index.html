@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Volca Sample Breakbeat Embalmer</title>
+</head>
+<body>
+  <h1>Volca Sample Breakbeat Embalmer</h1>
+  <p>Uses the procedure detailed by electronic music producer <a href="https://www.youtube.com/watch?v=ci_ReYDKUfI">Chris Lody</a> to calculate the correct amount of silence to add to the end of a breakbeat, then renders a downloadable WAV ready to load onto the Korg Volca Sample.</p>
+  <input type="file" id="fileInput" accept="audio/*">
+  <button id="processBtn">Process & Export WAV</button>
+  <a id="downloadLink" style="display:none;">Download Processed WAV</a>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const processBtn = document.getElementById('processBtn');
+    const downloadLink = document.getElementById('downloadLink');
+
+    async function decodeAudioFile(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const audioCtx = new AudioContext();
+      return audioCtx.decodeAudioData(arrayBuffer);
+    }
+
+    function createWavFile(audioBuffer) {
+      const numChannels = audioBuffer.numberOfChannels;
+      const sampleRate = audioBuffer.sampleRate;
+      const length = audioBuffer.length;
+
+      // Calculate silence length
+      const silenceLength = Math.floor(length * 0.11111);
+
+      // Create a new buffer with original length + silence
+      const newLength = length + silenceLength;
+      const newBuffer = new AudioBuffer({
+        length: newLength,
+        numberOfChannels: numChannels,
+        sampleRate: sampleRate
+      });
+
+      // Copy original audio into new buffer
+      for (let ch = 0; ch < numChannels; ch++) {
+        const oldData = audioBuffer.getChannelData(ch);
+        const newData = newBuffer.getChannelData(ch);
+        newData.set(oldData, 0); // silence is already zero-filled
+      }
+
+      // Convert buffer to WAV
+      return audioBufferToWav(newBuffer);
+    }
+
+    function audioBufferToWav(buffer) {
+      const numChannels = buffer.numberOfChannels;
+      const sampleRate = buffer.sampleRate;
+      const format = 1; // PCM
+      const bitDepth = 16;
+
+      let result;
+      if (numChannels === 2) {
+        result = interleave(buffer.getChannelData(0), buffer.getChannelData(1));
+      } else {
+        result = buffer.getChannelData(0);
+      }
+
+      return encodeWav(result, numChannels, sampleRate, format, bitDepth);
+    }
+
+    function interleave(left, right) {
+      const length = left.length + right.length;
+      const result = new Float32Array(length);
+      let index = 0, inputIndex = 0;
+      while (index < length) {
+        result[index++] = left[inputIndex];
+        result[index++] = right[inputIndex];
+        inputIndex++;
+      }
+      return result;
+    }
+
+    function encodeWav(samples, numChannels, sampleRate, format, bitDepth) {
+      const bytesPerSample = bitDepth / 8;
+      const blockAlign = numChannels * bytesPerSample;
+
+      const buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);
+      const view = new DataView(buffer);
+
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + samples.length * bytesPerSample, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, format, true);
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * blockAlign, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, bitDepth, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, samples.length * bytesPerSample, true);
+
+      floatTo16BitPCM(view, 44, samples);
+
+      return buffer;
+    }
+
+    function floatTo16BitPCM(output, offset, input) {
+      for (let i = 0; i < input.length; i++, offset += 2) {
+        let s = Math.max(-1, Math.min(1, input[i]));
+        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+    }
+
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    }
+
+    processBtn.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a file first.");
+        return;
+      }
+      const audioBuffer = await decodeAudioFile(file);
+      const wavArrayBuffer = createWavFile(audioBuffer);
+
+      const blob = new Blob([wavArrayBuffer], { type: "audio/wav" });
+      const url = URL.createObjectURL(blob);
+      downloadLink.href = url;
+      downloadLink.download = "processed.wav";
+      downloadLink.style.display = "block";
+      downloadLink.textContent = "Download Processed WAV";
+    });
+  </script>
+</body>
+</html>
