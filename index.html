@@ -129,6 +129,10 @@ button:active {
       <label>Silence To Be Added (samples):</label>
       <span class="readout" id="silenceLength">--</span>
     </div>
+    <div class="control-group">
+      <label>New File Length (samples):</label>
+      <span class="readout" id="newLength">--</span>
+    </div>
   </div>
 
   <div class="buttons">
@@ -160,6 +164,7 @@ const fileInput = document.getElementById('fileInput');
 const processBtn = document.getElementById('processBtn');
 const origLengthEl = document.getElementById('origLength');
 const silenceLengthEl = document.getElementById('silenceLength');
+const newLengthEl = document.getElementById('newLength');
 
 let currentBuffer = null;
 
@@ -176,8 +181,10 @@ fileInput.addEventListener('change', async () => {
   currentBuffer = buffer;
   const length = buffer.length;
   const silenceLength = Math.floor(length * 0.11111);
+  const newLength = length + silenceLength;
   origLengthEl.textContent = length.toLocaleString();
   silenceLengthEl.textContent = silenceLength.toLocaleString();
+  newLengthEl.textContent = newLength.toLocaleString();
 });
 
 processBtn.addEventListener('click', () => {
