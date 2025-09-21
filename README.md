@@ -13,6 +13,6 @@ Download index.html to run locally, or use the <a href="https://davemh.github.io
 
 Runs best in Chrome.
 
-Brought to you by <a href="reverse-engine.com">Reverse Engine Records</a>. Made by <a href="https://davemh.com">a Volca enthusiast</a>, unaffiliated with Korg.
+Brought to you by <a href="https://reverse-engine.com">Reverse Engine Records</a>. Made by <a href="https://davemh.com">a Volca enthusiast</a>, unaffiliated with Korg.
 
 Method credit to <a href="https://www.youtube.com/chrislodymusic">Chris Lody</a>. Made with appreciation for his contributions to the Korg Volca user community.
