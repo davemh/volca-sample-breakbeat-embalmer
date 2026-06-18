@@ -222,7 +222,12 @@ processBtn.addEventListener('click', () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "processed.wav";
+  
+  // Get original filename and create new filename
+  const originalFileName = fileInput.files[0].name;
+  const fileNameWithoutExt = originalFileName.replace(/\.[^/.]+$/, "");
+  a.download = `${fileNameWithoutExt}_processed.wav`;
+  
   a.click();
 });
 
