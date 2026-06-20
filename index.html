@@ -226,7 +226,7 @@ processBtn.addEventListener('click', () => {
   // Get original filename and create new filename
   const originalFileName = fileInput.files[0].name;
   const fileNameWithoutExt = originalFileName.replace(/\.[^/.]+$/, "");
-  a.download = `${fileNameWithoutExt}_processed.wav`;
+  a.download = `${fileNameWithoutExt}_volca-ready.wav`;
   
   a.click();
 });
